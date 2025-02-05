@@ -1,20 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online PR Value Calculator</title>
-    <meta name="description" content="Simple online ranking to PR value conversion">
-    <link rel="alternate" href="https://yappy2000d.github.io/online-pr-calculator/zh-tw.html" hreflang="zh-tw">
+    <title>線上PR值計算機</title>
+    <meta name="description" content="簡易線上排名轉換成PR值">
+    <link rel="canonical" href="https://yappy2000d.github.io/online-pr-calculator/index.html">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
-
         :root{
             background-color:var(--background-primary);
             color:var(--text-primary);
             scroll-bar-color:var(--scrollbar-color) var(--scrollbar-bg);
             accent-color:var(--accent-primary);
-            font-family: "Noto Sans TC", serif;
         }
 
         @media (prefers-color-scheme:light){
@@ -108,12 +106,12 @@
     </style>
 </head>
 <body>
-    <h1>Online PR Value Calculator</h1>
+    <h1>線上PR值計算機</h1>
     <div>
-        Rank
-        <input type="number" id="rank" placeholder="rank">
+        排名
+        <input type="number" id="rank" placeholder="排名">
         /
-        <input type="number" id="total" placeholder="total">
+        <input type="number" id="total" placeholder="總數">
         <div id="norm">
             <label>
                 &mu;
@@ -127,32 +125,32 @@
         </div>
     </div>
     <details>
-        <summary>Draw Options</summary>
+        <summary>繪圖選項</summary>
         <label>
-            Block Colors
+            區塊顏色
             <input type="color" class="style" id="style1" value="#fad8d8">
             <input type="color" class="style" id="style2" value="#daf0f8">
             <input type="color" class="style" id="style3" value="#ddf9dd">
         </label>
         <label>
-            Curve Color
+            曲線顏色
             <input type="color" class="style" id="curveStyle" value="#007acc">
         </label>
         <label>
-            Grid Color
+            格線顏色
             <input type="color" class="style" id="gridStyle" value="#717c85">
         </label>
-        <label>Grids(Column Size)
+        <label>格數(欄)
             <input type="range" id="gridColumn" step="6" min="6" value="6" max="36">
         </label>
-        <label>Grids(Row Size)
+        <label>格數(列)
             <input type="range" id="gridRow" min="6" value="8" max="36">
         </label>
     </details>
-    <button type="button" id="btn" onclick="draw()">Draw Result</button>
+    <button type="button" id="btn" onclick="draw()">繪製結果</button>
     <table id="result" hidden border="0">
         <tr>
-            <td>PR Value</td>
+            <td>PR值</td>
             <td><input type="text" id="pr" readonly></td>
         </tr>
         <tr>
@@ -168,7 +166,7 @@
             const total = document.getElementById('total').value;
 
             if (rank === '' || total === '') {
-                alert('Please enter rank and total');
+                alert('請輸入排名與總數');
                 return;
             }
             
