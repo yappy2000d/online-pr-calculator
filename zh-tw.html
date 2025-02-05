@@ -115,17 +115,6 @@
         <input type="number" id="rank" placeholder="排名">
         /
         <input type="number" id="total" placeholder="總數">
-        <div id="norm">
-            <label>
-                &mu;
-                <input type="number" id="mu" value="0">
-            </label>
-            
-            <label>
-                &sigma;
-                <input type="number" id="sigma" value="1">
-            </label>
-        </div>
     </div>
     <details>
         <summary>繪圖選項</summary>
@@ -173,8 +162,8 @@
                 return;
             }
             
-            let mu = document.getElementById('mu').value;
-            let sigma = document.getElementById('sigma').value;
+            const mu = 0;
+            const sigma = 1;
 
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
