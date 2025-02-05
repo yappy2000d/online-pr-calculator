@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online PR Value Calculator</title>
+    <meta name="description" content="Simple online ranking to PR value conversion">
+    <link rel="alternate" href="zh.html" hreflang="zh">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
+
+        :root{
+            background-color:var(--background-primary);
+            color:var(--text-primary);
+            scroll-bar-color:var(--scrollbar-color) var(--scrollbar-bg);
+            accent-color:var(--accent-primary);
+            font-family: "Noto Sans TC", serif;
+        }
+
+        @media (prefers-color-scheme:light){
+            :root{
+                --background-primary:#fff;
+                --text-primary:#1b1b1b;
+                --scrollbar-bg: transparent;
+                --scrollbar-color: rgba(0,0,0,.25);
+                --accent-primary:#0069c2;
+            }
+        }
+
+        @media (prefers-color-scheme:dark){
+            :root{
+                --background-primary:#1b1b1b;
+                --text-primary:#fff;
+                --scrollbar-bg: transparent;
+                --scrollbar-color: hsla(0,0%,100%,.25);
+                --accent-primary:#8cb4ff;
+            }
+        }
+
+        body {
+            margin: 0;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-flow: column wrap;
+        }
+        input {
+            width: 5rem;
+        }
+        #norm {
+            display: flex;
+            justify-content: space-around;
+            margin: 1rem auto 0;
+        }
+        input[type="number"] {
+            width: 3rem;
+        }
+        details {
+            width: 16rem;
+            margin-top: 1rem;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            padding: 0.5rem 0.5rem 0;
+            align-content: space-between;
+            flex-flow: row nowrap;
+        }
+        details label {
+            display: block;
+            margin-top: 0.6rem;
+        }
+        details summary {
+            margin: -0.5rem -0.5rem 0;
+            padding: 0.5rem;
+        }
+        details[open] {
+            padding: 0.5rem;
+        }
+        .style {
+            width: 3rem;
+        }
+        input[type="range"] {
+            width: 100%;
+            color: var(--accent-primary);
+        }
+        #btn {
+            width: 16rem;
+            margin: 2rem;
+            padding: 0.5rem;
+            border: 2px solid #555555;
+            border-radius: 4px;
+            box-shadow: 0 0 4px 0 #555555;
+            background-color: var(--text-primary);
+            color: var(--background-primary);
+        }
+        #btn:hover {
+            box-shadow: 0 0 8px 0 #555555;
+            transform: scale(1.125);
+            background-color: var(--background-primary);
+            color: var(--text-primary);
+        }
+        #btn:active {
+            box-shadow: 0 0 4px 0 #555555;
+        }
+        canvas {
+            width: 20rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Online PR Value Calculator</h1>
+    <div>
+        Rank
+        <input type="number" id="rank" placeholder="rank">
+        /
+        <input type="number" id="total" placeholder="total">
+        <div id="norm">
+            <label>
+                &mu;
+                <input type="number" id="mu" value="0">
+            </label>
+            
+            <label>
+                &sigma;
+                <input type="number" id="sigma" value="1">
+            </label>
+        </div>
+    </div>
+    <details>
+        <summary>Draw Options</summary>
+        <label>
+            Block Colors
+            <input type="color" class="style" id="style1" value="#fad8d8">
+            <input type="color" class="style" id="style2" value="#daf0f8">
+            <input type="color" class="style" id="style3" value="#ddf9dd">
+        </label>
+        <label>
+            Curve Color
+            <input type="color" class="style" id="curveStyle" value="#007acc">
+        </label>
+        <label>
+            Grid Color
+            <input type="color" class="style" id="gridStyle" value="#717c85">
+        </label>
+        <label>Grids(Column Size)
+            <input type="range" id="gridColumn" step="6" min="6" value="6" max="36">
+        </label>
+        <label>Grids(Row Size)
+            <input type="range" id="gridRow" min="6" value="8" max="36">
+        </label>
+    </details>
+    <button type="button" id="btn" onclick="draw()">Draw Result</button>
+    <table id="result" hidden border="0">
+        <tr>
+            <td>PR Value</td>
+            <td><input type="text" id="pr" readonly></td>
+        </tr>
+        <tr>
+            <td>Z-Score</td>
+            <td><input type="text" id="z-score" readonly></td>
+        </tr>
+    </table>
+    <canvas id="canvas"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.6/jstat.min.js"></script>
+    <script>
+        const draw = () => {
+            const rank = document.getElementById('rank').value;
+            const total = document.getElementById('total').value;
+
+            if (rank === '' || total === '') {
+                alert('Please enter rank and total');
+                return;
+            }
+            
+            let mu = document.getElementById('mu').value;
+            let sigma = document.getElementById('sigma').value;
+
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            // draw Block
+            const style1 = document.getElementById('style1').value;
+            const style2 = document.getElementById('style2').value;
+            const style3 = document.getElementById('style3').value;
+            const styles = [style1, style2, style3, style3, style2, style1];
+            const gridColumn = document.getElementById('gridColumn').value;
+            const gridRow = document.getElementById('gridRow').value;
+            const blockWidth = width / gridColumn;
+            const blockHeight = height / gridRow;
+            for (let i = 0; i < gridColumn; i++) {
+                ctx.beginPath();
+                ctx.rect(i * blockWidth, 0, blockWidth, height);
+                ctx.fillStyle = styles[i / (gridColumn / 6)];
+                ctx.fill();
+            }
+
+            // draw Grid
+            const gridStyle = document.getElementById('gridStyle').value;
+            ctx.beginPath();
+            for (let i = 1; i < gridColumn; i++) {
+                ctx.moveTo(i * blockWidth, 0);
+                ctx.lineTo(i * blockWidth, height);
+            }
+            for (let i = 1; i < gridRow; i++) {
+                ctx.moveTo(0, i * blockHeight);
+                ctx.lineTo(width, i * blockHeight);
+            }
+            ctx.strokeStyle = gridStyle;
+            ctx.stroke();
+
+            // draw Curve
+            const xMin = mu - 3 * sigma;
+            const xMax = mu + 3 * sigma;
+
+            const yMin = 0;
+            const yMax = 1 / (sigma * Math.sqrt(2 * Math.PI));
+
+            const xScale = width / (xMax - xMin);
+            const yScale = height / (yMax - yMin);
+
+            const xOffset = width / 2;
+            const yOffset = height;
+
+            ctx.beginPath();
+
+            for (let x = xMin; x <= xMax; x += (xMax - xMin) / 500) {
+                const y = jStat.normal.pdf(x, mu, sigma);
+                const canvasX = x * xScale + xOffset;
+                const canvasY = yOffset - y * yScale;
+
+                if (x === xMin) {
+                    ctx.moveTo(canvasX, canvasY);
+                } else {
+                    ctx.lineTo(canvasX, canvasY);
+                }
+            }
+            ctx.strokeStyle = document.getElementById('curveStyle').value;
+            ctx.stroke();
+
+            // mark rank
+            const pr = 1 - (rank - 0.5) / total;
+            const zScore = Number(jStat.normal.inv(pr, mu, sigma));
+            const x = mu + zScore * sigma;
+            const y = jStat.normal.pdf(zScore, mu, sigma);
+            const canvasX = x * xScale + xOffset;
+            const canvasY = yOffset - y * yScale;
+
+            ctx.beginPath();
+            ctx.arc(canvasX, canvasY, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+
+            document.getElementById('pr').value = pr.toFixed(4) * 100 + '%';
+            document.getElementById('z-score').value = zScore.toFixed(4);
+            document.getElementById('result').hidden = false;
+        }
+    </script>
+</body>
+</html>
